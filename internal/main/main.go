@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
 	"ws-noughts-and-crosses/internal/hub"
 )
 
 var mux = http.NewServeMux()
+var upgrader = websocket.Upgrader{}
 
 func main() {
 	centralHub := hub.NewHub()
