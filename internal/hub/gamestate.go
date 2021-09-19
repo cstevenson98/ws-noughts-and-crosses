@@ -24,8 +24,9 @@ func (g *GameState) SetSquare(x, y int, kind string) error {
 	return nil
 }
 
-func (g *GameState) Clear() {
-	g.Board = [3][3]string{{" ", " ", " "}, {" ", " ", " "}, {" ", " ", " "}}
+// NewState creates a blank GameState.
+func NewState() *GameState {
+	return &GameState{[3][3]string{{" ", " ", " "}, {" ", " ", " "}, {" ", " ", " "}}, GameStandby}
 }
 
 // BoardToOutput outputs the noughts-and-crosses state as a user-

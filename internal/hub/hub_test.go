@@ -21,7 +21,7 @@ func TestGame_SlotsFree(t *testing.T) {
 func TestHub_AddToGameOrNewGame(t *testing.T) {
 	// Completely empty hub. New game with client added in
 	mockHub := NewHub()
-	err := mockHub.AddToGameOrNewGame(&Client{mockHub, nil})
+	err := mockHub.AddToGameOrNewGame(&Client{mockHub, nil, nil})
 	if err != nil {
 		t.Errorf("Test failed unexpectedly: error adding client")
 	}
@@ -31,7 +31,7 @@ func TestHub_AddToGameOrNewGame(t *testing.T) {
 			&Game{&Client{}, nil} : GameState{},
 		},
 	}
-	err = mockHub2.AddToGameOrNewGame(&Client{mockHub, nil})
+	err = mockHub2.AddToGameOrNewGame(&Client{mockHub, nil, nil})
 	if err != nil {
 		t.Errorf("Test failed unexpectedly: error adding client")
 	}
@@ -41,7 +41,7 @@ func TestHub_AddToGameOrNewGame(t *testing.T) {
 			&Game{&Client{}, &Client{}} : GameState{},
 		},
 	}
-	err = mockHub3.AddToGameOrNewGame(&Client{mockHub, nil})
+	err = mockHub3.AddToGameOrNewGame(&Client{mockHub, nil, nil})
 	if err != nil {
 		t.Errorf("Test failed unexpectedly: error adding client")
 	}

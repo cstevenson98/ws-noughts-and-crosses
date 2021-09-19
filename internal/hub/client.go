@@ -5,12 +5,22 @@ import (
 	"log"
 )
 
+var (
+	newline = []byte{'\n'}
+	space   = []byte{' '}
+)
+
 type Client struct {
 	Hub          *Hub
 	Conn         *websocket.Conn
+	Stream       chan []byte
 }
 
 func (c *Client) ReadPump() {
+	defer func() {
+		c.Hub.Unregister <- c
+		c.Conn.Close()
+	}()
 	for {
 		_, _, err := c.Conn.ReadMessage()
 		if err != nil {
@@ -23,5 +33,28 @@ func (c *Client) ReadPump() {
 }
 
 func (c *Client) WritePump() {
-	return
+	defer func() {
+		c.Conn.Close()
+	}()
+	for {
+		select {
+		case message, ok := <-c.Stream:
+			if !ok {
+				// The hub closed the channel.
+				c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
+				return
+			}
+
+			w, err := c.Conn.NextWriter(websocket.TextMessage)
+			if err != nil {
+				return
+			}
+			w.Write(message)
+
+			if err := w.Close(); err != nil {
+				return
+			}
+
+		}
+	}
 }

@@ -40,6 +40,7 @@ type Hub struct {
 	// Games that are registered
 	Games 			 map[*Game]GameState
 	Register		 chan *Client
+	Unregister		 chan *Client
 	MakeTurn		 chan Turn
 }
 
@@ -48,12 +49,13 @@ func NewHub() *Hub {
 	return &Hub{
 		Games:      make(map[*Game]GameState),
 		Register:   make(chan *Client),
+		Unregister: make(chan *Client),
 		MakeTurn:   make(chan Turn),
 	}
 }
 
-// AddToGameOrNewGame either adds a client to the first available game or creates a new game and adds them to
-// that.
+// AddToGameOrNewGame either adds a client to the first available game or creates a
+// new game and adds them to that.
 func (h *Hub) AddToGameOrNewGame(client *Client) error {
 	for game, _ := range h.Games {
 		if game.SlotsFree() > 0 {
@@ -71,6 +73,22 @@ func (h *Hub) AddToGameOrNewGame(client *Client) error {
 	return nil
 }
 
+func (h *Hub) UnregisterClient(client *Client) error {
+	// Search for this client and remove it.
+	for game, _ := range h.Games {
+		if game.Player1 == client {
+			game.Player1 = nil
+		} else if game.Player2 == client {
+			game.Player2 = nil
+		}
+		if game.Player1 == nil && game.Player2 == nil {
+			delete(h.Games, game)
+		}
+		return nil
+	}
+	return fmt.Errorf("client was not found registered in hub")
+}
+
 func (h *Hub) Run() {
 	for {
 		select {
@@ -78,6 +96,17 @@ func (h *Hub) Run() {
 			// Register incoming new client, add them to a lobby
 			if ok {
 				err := h.AddToGameOrNewGame(x)
+				if err != nil {
+					break
+				}
+			} else {
+				return
+			}
+
+		case x, ok := <-h.Unregister:
+			// Register incoming new client, add them to a lobby
+			if ok {
+				err := h.UnregisterClient(x)
 				if err != nil {
 					break
 				}
