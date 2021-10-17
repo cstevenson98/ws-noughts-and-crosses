@@ -8,6 +8,8 @@ import (
 	"ws-noughts-and-crosses/internal/hub"
 )
 
+
+
 var mux = http.NewServeMux()
 var upgrader = websocket.Upgrader{}
 
@@ -17,7 +19,8 @@ func main() {
 
 	go centralHub.Run()
 
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/",
+		func(w http.ResponseWriter, r *http.Request) {
 			registration(centralHub, w, r)
 	})
 

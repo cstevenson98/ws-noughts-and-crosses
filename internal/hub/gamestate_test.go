@@ -6,6 +6,6 @@ import (
 )
 
 func TestGameState_BoardToOutput(t *testing.T) {
-	state := *NewState()
+	state := NewState()
 	fmt.Println(string(state.BoardToOutput()))
 }

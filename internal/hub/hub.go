@@ -2,20 +2,30 @@ package hub
 
 import "fmt"
 
+const (
+	GameWaiting = "Waiting"
+	GamePlayer1 = "Player 1's turn!"
+	GamePlayer2 = "Player 2's turn!"
+	GameOver    = "Game Over!"
+)
+
 type Game struct {
-	Player1 *Client
-	Player2 *Client
+	Player1 *Player
+	Player2 *Player
+	Status  string
 }
 
-// AddClient adds a client to a game in the first available slot
-func (g *Game) AddClient(client *Client) error {
+// AddClient adds a client to a game in the first available slot and tells player
+// what game they are in by assigning it to Game field.
+func (g *Game) AddClient(player *Player) error {
 	if g.Player1 == nil {
-		g.Player1 = client
+		g.Player1 = player
 	} else if g.Player2 == nil {
-		g.Player2 = client
+		g.Player2 = player
 	} else {
 		return fmt.Errorf("no slots in game")
 	}
+	player.Game = g
 	return nil
 }
 
@@ -30,65 +40,106 @@ func (g *Game) SlotsFree() (slots int) {
 	return
 }
 
+// WhichPlayer determines if player is in slot 1 or slot 2.
+func (g *Game) WhichPlayer(player *Player) string {
+	if player == g.Player1 {
+		return GamePlayer1
+	} else if player == g.Player2 {
+		return GamePlayer2
+	}
+	return "<Unknown Player>"
+}
+
+// Turn is a struct containing which turn information and from which player,
+// in the form of a pointer.
 type Turn struct {
-	client *Client
+	player *Player
 	move   [2]int
 }
 
-// Hub stores all the ongoing games and deals with registrations and validation of player moves.
+// Hub stores all the ongoing games and deals with registrations and validation
+// of player moves.
 type Hub struct {
 	// Games that are registered
-	Games 			 map[*Game]GameState
-	Register		 chan *Client
-	Unregister		 chan *Client
-	MakeTurn		 chan Turn
+	Games      map[*Game]*GameState
+	Register   chan *Player
+	Unregister chan *Player
+	MakeTurn   chan Turn
 }
 
 // NewHub sets up a Hub and returns the memory location.
 func NewHub() *Hub {
 	return &Hub{
-		Games:      make(map[*Game]GameState),
-		Register:   make(chan *Client),
-		Unregister: make(chan *Client),
+		Games:      make(map[*Game]*GameState),
+		Register:   make(chan *Player),
+		Unregister: make(chan *Player),
 		MakeTurn:   make(chan Turn),
 	}
 }
 
 // AddToGameOrNewGame either adds a client to the first available game or creates a
 // new game and adds them to that.
-func (h *Hub) AddToGameOrNewGame(client *Client) error {
-	for game, _ := range h.Games {
+func (h *Hub) AddToGameOrNewGame(player *Player) error {
+	for game := range h.Games {
 		if game.SlotsFree() > 0 {
-			err := game.AddClient(client)
+			err := game.AddClient(player)
 			if err != nil {
-				return fmt.Errorf("err when adding client to hub: %s", err.Error())
-			} else {
-				return nil
+				return fmt.Errorf("err when adding player to hub: %s", err.Error())
 			}
+			return nil
 		}
 	}
 
-	newGame := &Game{client, nil}
-	h.Games[newGame] = GameState{}
+	newGame := &Game{player, nil, GameWaiting}
+	h.Games[newGame] = &GameState{}
+	h.Games[newGame].Clear()
+	player.Game = newGame
 	return nil
 }
 
-func (h *Hub) UnregisterClient(client *Client) error {
+func (h *Hub) UnregisterClient(player *Player) error {
 	// Search for this client and remove it.
-	for game, _ := range h.Games {
-		if game.Player1 == client {
+	for game := range h.Games {
+		if game.Player1 == player {
 			game.Player1 = nil
-		} else if game.Player2 == client {
+			if game.Player1 == nil && game.Player2 == nil {
+				delete(h.Games, game)
+			}
+			return nil
+		} else if game.Player2 == player {
 			game.Player2 = nil
+			if game.Player1 == nil && game.Player2 == nil {
+				delete(h.Games, game)
+			}
+			return nil
 		}
-		if game.Player1 == nil && game.Player2 == nil {
-			delete(h.Games, game)
-		}
-		return nil
 	}
-	return fmt.Errorf("client was not found registered in hub")
+	return fmt.Errorf("player was not found registered in hub")
 }
 
+// ProcessTurn takes the turn information pumped up from the player
+// read routine and determines what can be done with, and enacts the
+// appropriate action.
+func (h *Hub) ProcessTurn(turn Turn) error {
+
+	var nextBoard = h.Games[turn.player.Game]
+	playerLabel := turn.player.Game.WhichPlayer(turn.player)
+	if playerLabel == GamePlayer1 {
+		nextBoard.Board[turn.move[0]][turn.move[1]] = "X"
+	} else if playerLabel == GamePlayer2 {
+		nextBoard.Board[turn.move[0]][turn.move[1]] = "0"
+	} else {
+		return fmt.Errorf("error: unknown player cannot make turn")
+	}
+	turn.player.Stream <- nextBoard.BoardToOutput()
+	h.Games[turn.player.Game] = nextBoard
+
+	return nil
+}
+
+// Run is the function which deals with the core features of the websocket hub.
+// It registers new clients and adds them to a game. It also deals with the players'
+// turns.
 func (h *Hub) Run() {
 	for {
 		select {
@@ -104,7 +155,7 @@ func (h *Hub) Run() {
 			}
 
 		case x, ok := <-h.Unregister:
-			// Register incoming new client, add them to a lobby
+			// Unregister and clean up
 			if ok {
 				err := h.UnregisterClient(x)
 				if err != nil {
@@ -117,7 +168,7 @@ func (h *Hub) Run() {
 		case turn, ok := <-h.MakeTurn:
 			// Process a player turn
 			if ok {
-				fmt.Printf("%v\n", *turn.client)
+				h.ProcessTurn(turn)
 			} else {
 				return
 			}

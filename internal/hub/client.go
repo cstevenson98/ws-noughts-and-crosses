@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
 )
@@ -10,32 +11,44 @@ var (
 	space   = []byte{' '}
 )
 
-type Client struct {
+type Player struct {
 	Hub          *Hub
+	Game         *Game
 	Conn         *websocket.Conn
 	Stream       chan []byte
 }
 
-func (c *Client) ReadPump() {
+func (c *Player) ReadPump() {
 	defer func() {
 		c.Hub.Unregister <- c
 		c.Conn.Close()
 	}()
+
 	for {
-		_, _, err := c.Conn.ReadMessage()
+		_, message, err := c.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
+
+		var turnCoords [2]int
+		jsonErr := json.Unmarshal(message, &turnCoords)
+		if jsonErr != nil {
+			log.Printf("ERROR: unmarshalling")
+			break
+		}
+
+		c.Hub.MakeTurn <- Turn{ c, turnCoords }
 	}
 }
 
-func (c *Client) WritePump() {
+func (c *Player) WritePump() {
 	defer func() {
 		c.Conn.Close()
 	}()
+
 	for {
 		select {
 		case message, ok := <-c.Stream:
@@ -54,7 +67,6 @@ func (c *Client) WritePump() {
 			if err := w.Close(); err != nil {
 				return
 			}
-
 		}
 	}
 }
