@@ -19,10 +19,13 @@ func main() {
 
 	go centralHub.Run()
 
-	mux.HandleFunc("/",
+	fileserver := http.FileServer(http.Dir("./frontend"))
+	mux.Handle("/", fileserver)
+	mux.HandleFunc("/connect",
 		func(w http.ResponseWriter, r *http.Request) {
 			registration(centralHub, w, r)
 	})
+
 
 	err := http.ListenAndServe(":8080", mux)
 	if err != nil {
