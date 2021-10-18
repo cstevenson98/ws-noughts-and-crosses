@@ -50,7 +50,8 @@ window.addEventListener("DOMContentLoaded", function() {
 
     Array.from(boxes, function(box) {
         box.addEventListener("click", function() {
-            alert("[" + this.classList[1] + ", " + this.classList[2] + "]");
+            //alert("[" + this.classList[1] + ", " + this.classList[2] + "]");
+            box.style.background = "red"
         });
     });
 });
