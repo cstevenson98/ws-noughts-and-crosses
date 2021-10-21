@@ -5,10 +5,9 @@ import (
 	"github.com/gorilla/websocket"
 	"log"
 	"net/http"
+	"time"
 	"ws-noughts-and-crosses/internal/hub"
 )
-
-
 
 var mux = http.NewServeMux()
 var upgrader = websocket.Upgrader{}
@@ -18,9 +17,11 @@ func main() {
 	fmt.Println(centralHub)
 
 	go centralHub.Run()
+	go centralHub.LogOnInterval(time.Second * 30)
 
-	fileserver := http.FileServer(http.Dir("./frontend"))
-	mux.Handle("/", fileserver)
+	fileServer := http.FileServer(http.Dir("./frontend"))
+	mux.Handle("/", fileServer)
+
 	mux.HandleFunc("/connect",
 		func(w http.ResponseWriter, r *http.Request) {
 			registration(centralHub, w, r)

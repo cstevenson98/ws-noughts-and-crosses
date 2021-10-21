@@ -2,61 +2,6 @@ package hub
 
 import "fmt"
 
-const (
-	GameWaiting = "Waiting"
-	GamePlayer1 = "Player 1's turn!"
-	GamePlayer2 = "Player 2's turn!"
-	GameOver    = "Game Over!"
-)
-
-type Game struct {
-	Player1 *Player
-	Player2 *Player
-	Status  string
-}
-
-// AddClient adds a client to a game in the first available slot and tells player
-// what game they are in by assigning it to Game field.
-func (g *Game) AddClient(player *Player) error {
-	if g.Player1 == nil {
-		g.Player1 = player
-	} else if g.Player2 == nil {
-		g.Player2 = player
-	} else {
-		return fmt.Errorf("no slots in game")
-	}
-	player.Game = g
-	return nil
-}
-
-// SlotsFree returns the number of unoccupied slots in a game.
-func (g *Game) SlotsFree() (slots int) {
-	if g.Player1 == nil {
-		slots += 1
-	}
-	if g.Player2 == nil {
-		slots += 1
-	}
-	return
-}
-
-// WhichPlayer determines if player is in slot 1 or slot 2.
-func (g *Game) WhichPlayer(player *Player) string {
-	if player == g.Player1 {
-		return GamePlayer1
-	} else if player == g.Player2 {
-		return GamePlayer2
-	}
-	return "<Unknown Player>"
-}
-
-// Turn is a struct containing which turn information and from which player,
-// in the form of a pointer.
-type Turn struct {
-	player *Player
-	move   [2]int
-}
-
 // Hub stores all the ongoing games and deals with registrations and validation
 // of player moves.
 type Hub struct {
@@ -83,6 +28,7 @@ func (h *Hub) AddToGameOrNewGame(player *Player) error {
 	for game := range h.Games {
 		if game.SlotsFree() > 0 {
 			err := game.AddClient(player)
+			player.Stream <- h.Games[player.Game].BoardToOutput()
 			if err != nil {
 				return fmt.Errorf("err when adding player to hub: %s", err.Error())
 			}
@@ -94,6 +40,7 @@ func (h *Hub) AddToGameOrNewGame(player *Player) error {
 	h.Games[newGame] = &GameState{}
 	h.Games[newGame].Clear()
 	player.Game = newGame
+	player.Stream <- h.Games[player.Game].BoardToOutput()
 	return nil
 }
 
@@ -124,14 +71,23 @@ func (h *Hub) ProcessTurn(turn Turn) error {
 
 	var nextBoard = h.Games[turn.player.Game]
 	playerLabel := turn.player.Game.WhichPlayer(turn.player)
+	var otherPlayer *Player
 	if playerLabel == GamePlayer1 {
 		nextBoard.Board[turn.move[0]][turn.move[1]] = "X"
+		otherPlayer = turn.player.Game.Player2
 	} else if playerLabel == GamePlayer2 {
 		nextBoard.Board[turn.move[0]][turn.move[1]] = "0"
+		otherPlayer = turn.player.Game.Player1
 	} else {
 		return fmt.Errorf("error: unknown player cannot make turn")
 	}
-	turn.player.Stream <- nextBoard.BoardToOutput()
+
+
+	output := nextBoard.BoardToOutput()
+	turn.player.Stream <- output
+	if otherPlayer != nil {
+		otherPlayer.Stream <- output
+	}
 	h.Games[turn.player.Game] = nextBoard
 
 	return nil

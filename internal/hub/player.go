@@ -18,6 +18,11 @@ type Player struct {
 	Stream       chan []byte
 }
 
+type Turn struct {
+	player *Player
+	move   [2]int
+}
+
 func (c *Player) ReadPump() {
 	defer func() {
 		c.Hub.Unregister <- c

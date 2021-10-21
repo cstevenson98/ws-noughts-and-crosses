@@ -23,7 +23,3 @@ func registration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Request) {
 	go client.ReadPump()
 	go client.WritePump()
 }
-
-func home(w http.ResponseWriter, r *http.Request) {
-
-}

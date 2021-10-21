@@ -1,103 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <title>Chat Example</title>
 <script type="text/javascript" src="client.js"></script>
-<style type="text/css">
-    body {
-        margin: 40px;
-    }
-
-    .wrapper {
-        display: grid;
-        grid-template-rows: 100px 100px 100px;
-        grid-template-columns: 100px 100px 100px;
-        grid-gap: 10px;
-        background-color: #fff;
-        color: #444;
-    }
-
-    .box {
-        background-color: #444;
-        color: #fff;
-        border-radius: 5px;
-        /*   padding: 20px; */
-        font-size: 150%;
-        cursor: pointer;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .boxClicked {
-        background-color: rgba(68, 68, 68, 0.87);
-        color: #fff;
-        border-radius: 5px;
-        /*   padding: 20px; */
-        font-size: 150%;
-        cursor: pointer;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    /*html {*/
-    /*    overflow: hidden;*/
-    /*}*/
-
-    /*body {*/
-    /*    overflow: hidden;*/
-    /*    padding: 0;*/
-    /*    margin: 0;*/
-    /*    width: 100%;*/
-    /*    height: 100%;*/
-    /*    background: gray;*/
-    /*}*/
-
-    /*#log {*/
-    /*    background: rgb(180, 54, 54);*/
-    /*    margin: 0;*/
-    /*    padding: 0.5em 0.5em 0.5em 0.5em;*/
-    /*    position: absolute;*/
-    /*    top: 0.5em;*/
-    /*    left: 0.5em;*/
-    /*    right: 0.5em;*/
-    /*    bottom: 3em;*/
-    /*    overflow: auto;*/
-    /*}*/
-
-    /*#form {*/
-    /*    padding: 0 0.5em 0 0.5em;*/
-    /*    margin: 0;*/
-    /*    position: absolute;*/
-    /*    bottom: 1em;*/
-    /*    left: 0px;*/
-    /*    width: 100%;*/
-    /*    overflow: hidden;*/
-    /*}*/
-
-</style>
-
-
+<link href="game.css" rel="stylesheet" type="text/css">
 </head>
+
 <body>
+<div class="title">Noughts and Crosses</div>
 <div class="wrapper">
-    <div class="box 0 0"></div>
-    <div class="box 0 1"></div>
-    <div class="box 0 2"></div>
-    <div class="box 1 0"></div>
-    <div class="box 1 1"></div>
-    <div class="box 1 2"></div>
-    <div class="box 2 0"></div>
-    <div class="box 2 1"></div>
-    <div class="box 2 2"></div>
+    <div class="box 00"></div>
+    <div class="box 01"></div>
+    <div class="box 02"></div>
+    <div class="box 10"></div>
+    <div class="box 11"></div>
+    <div class="box 12"></div>
+    <div class="box 20"></div>
+    <div class="box 21"></div>
+    <div class="box 22"></div>
 </div>
-<!--<div id="log"></div>-->
-<!--<form id="form">-->
-<!--    <input type="submit" value="Send" />-->
-<!--    <input type="text" id="msg" size="64" autofocus />-->
-<!--</form>-->
 </body>
+
 </html>

@@ -1,57 +1,40 @@
-// window.onload = function () {
-//     let conn;
-//     const msg = document.getElementById("msg");
-//     const log = document.getElementById("log");
-//
-//     function appendLog(item) {
-//         const doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
-//         log.appendChild(item);
-//         if (doScroll) {
-//             log.scrollTop = log.scrollHeight - log.clientHeight;
-//         }
-//     }
-//
-//     document.getElementById("form").onsubmit = function () {
-//         if (!conn) {
-//             return false;
-//         }
-//         if (!msg.value) {
-//             return false;
-//         }
-//         conn.send(msg.value);
-//         msg.value = "";
-//         return false;
-//     };
-//
-//     if (window["WebSocket"]) {
-//         conn = new WebSocket("ws://localhost:8080/connect");
-//         conn.onclose = function (evt) {
-//             var item = document.createElement("div");
-//             item.innerHTML = "<b>Connection closed.</b>";
-//             appendLog(item);
-//         };
-//         conn.onmessage = function (evt) {
-//             const messages = evt.data.split('\n');
-//             for (let i = 0; i < messages.length; i++) {
-//                 const item = document.createElement("div");
-//                 item.innerText = messages[i];
-//                 appendLog(item);
-//             }
-//         };
-//     } else {
-//         const item = document.createElement("div");
-//         item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
-//         appendLog(item);
-//     }
-// };
+let conn = new WebSocket("ws://"+ self.location.host + "/connect");
 
+conn.onclose = function (evt) {
+    console.log("Connection closed.");
+};
+
+// Messages will always be the game state.
+conn.onmessage = function (evt) {
+    const message = evt.data.toString()
+    console.log(message)
+
+    let boxes = document.querySelectorAll(".box");
+    Array.from(boxes, function(box) {
+        let i = box.classList[1][1];
+        let j = box.classList[1][0];
+
+        let intI = parseInt(i);
+        let intJ = parseInt(j);
+
+        let XorO = message[3*intI + intJ]
+        if (XorO == "X") {
+            box.style.background = "red"
+        } else if (XorO == "0") {
+            box.style.background = "green"
+        } else {
+            box.style.background = "gray"
+        }
+        box.textContent = XorO
+    });
+};
+
+// Waits for boxes to be clicked and sends turn info to backend.
 window.addEventListener("DOMContentLoaded", function() {
     let boxes = document.querySelectorAll(".box");
-
     Array.from(boxes, function(box) {
         box.addEventListener("click", function() {
-            //alert("[" + this.classList[1] + ", " + this.classList[2] + "]");
-            box.style.background = "red"
+            conn.send("[" + this.classList[1][1] + ", " + this.classList[1][0] + "]")
         });
     });
 });
