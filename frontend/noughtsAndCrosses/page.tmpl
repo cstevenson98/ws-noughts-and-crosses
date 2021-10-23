@@ -1,13 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
+{{template "base" .}}
 
-<head>
-<title>Chat Example</title>
-<script type="text/javascript" src="execute.js"></script>
-<link href="style.css" rel="stylesheet" type="text/css">
-</head>
+{{define "title"}}Noughts and Crosses{{end}}
 
-<body>
+{{define "main"}}
+<script type="text/javascript" src="/frontend/noughtsAndCrosses/execute.js"></script>
+<link href="/frontend/noughtsAndCrosses/style.css" rel="stylesheet" type="text/css">
 <div class="title">Noughts and Crosses</div>
 <div class="wrapper">
     <div class="box 00"></div>
@@ -20,6 +17,4 @@
     <div class="box 21"></div>
     <div class="box 22"></div>
 </div>
-</body>
-
-</html>
+{{end}}
