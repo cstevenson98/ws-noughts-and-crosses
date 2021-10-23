@@ -1,15 +1,3 @@
-body {
-    background-color: beige;
-}
-
-.title {
-    font-family: "Ubuntu Mono derivative Powerline", serif;
-    color: #14a9a9;
-    font-size: xx-large;
-    text-align: center;
-    margin-top: 22vh;
-}
-
 .wrapper {
     display: grid;
     grid-template-rows: 10vh 10vh 10vh;
@@ -22,7 +10,7 @@ body {
 }
 
 .box {
-    font-family: "Ubuntu Mono derivative Powerline", sans-serif;
+    font-family: "Ubuntu Mono", sans-serif;
     font-size: xxx-large;
     background-color: gray;
     color: #5e3c3c;

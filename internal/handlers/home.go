@@ -17,8 +17,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		"./frontend/base/base.tmpl",
 	}
 
-	log.Println(templateFiles)
-
 	ts, err := template.ParseFiles(templateFiles...)
 	if err != nil {
 		log.Println(err.Error())

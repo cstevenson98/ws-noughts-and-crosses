@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-size: 18px;
+    font-family: "Ubuntu Mono", monospace;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    line-height: 1.5;
+    background-color: beige;
+    overflow-y: scroll;
+}
+
+section {
+    margin-top: 54px;
+    margin-bottom: 54px;
+    min-height: calc(100vh - 345px);
+    overflow: auto;
+}
+
+h1 a {
+    font-size: 36px;
+    font-weight: bold;
+    height: 36px;
+    padding-left: 50px;
+}
+
+.mainTitle {
+    color: #063b3b;
+    font-size: xxx-large;
+    text-align: center;
+    background-color: bisque;
+    border-bottom: aqua;
+    border-bottom-width: thick;
+}
+
+.title {
+    color: #14a9a9;
+    font-size: xx-large;
+    text-align: center;
+    margin-top: 22vh;
+}
