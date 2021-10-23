@@ -6,11 +6,6 @@ import (
 	"log"
 )
 
-var (
-	newline = []byte{'\n'}
-	space   = []byte{' '}
-)
-
 type Player struct {
 	Hub          *Hub
 	Game         *Game
