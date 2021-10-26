@@ -1,4 +1,4 @@
-let conn = new WebSocket("ws://"+ self.location.host + "/connect");
+let conn = new WebSocket("ws://"+ self.location.href.slice(5) + "/connect");
 
 conn.onclose = function (evt) {
     console.log("Connection closed.");

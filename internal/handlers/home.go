@@ -13,7 +13,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 	}
 
 	templateFiles := []string{
-		"./frontend/noughtsAndCrosses/page.tmpl",
+		"./frontend/base/page.tmpl",
 		"./frontend/base/base.tmpl",
 	}
 
@@ -30,5 +30,3 @@ func Home(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Internal Server Error", 500)
 	}
 }
-
-

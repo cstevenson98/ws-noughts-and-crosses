@@ -14,7 +14,12 @@ func initRouter(centralHub *hub.Hub) {
 			handlers.Home(w, r)
 		})
 
-	mux.HandleFunc("/connect",
+	mux.HandleFunc("/noughtsAndCrosses",
+		func(w http.ResponseWriter, r *http.Request) {
+			handlers.NoughtsAndCrosses(w, r)
+		})
+
+	mux.HandleFunc("/noughtsAndCrosses/connect",
 		func(w http.ResponseWriter, r *http.Request) {
 			handlers.Registration(centralHub, w, r)
 		})
