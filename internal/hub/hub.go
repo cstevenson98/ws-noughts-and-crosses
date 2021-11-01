@@ -1,6 +1,8 @@
 package hub
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // Hub stores all the ongoing games and deals with registrations and validation
 // of player moves.
@@ -81,7 +83,6 @@ func (h *Hub) ProcessTurn(turn Turn) error {
 	} else {
 		return fmt.Errorf("error: unknown player cannot make turn")
 	}
-
 
 	output := nextBoard.BoardToOutput()
 	turn.player.Stream <- output

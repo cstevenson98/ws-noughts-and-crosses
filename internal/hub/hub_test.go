@@ -28,7 +28,7 @@ func TestHub_AddToGameOrNewGame(t *testing.T) {
 	// A hub which consists of one player already waiting in game: add player to the free slot
 	mockHub2 := &Hub{
 		Games: map[*Game]GameState{
-			&Game{&Player{}, nil} : GameState{},
+			&Game{&Player{}, nil}: GameState{},
 		},
 	}
 	err = mockHub2.AddToGameOrNewGame(&Player{mockHub, nil, nil})
@@ -38,7 +38,7 @@ func TestHub_AddToGameOrNewGame(t *testing.T) {
 	// A hub which already has one game which is full, so create new game and add client to that
 	mockHub3 := &Hub{
 		Games: map[*Game]GameState{
-			&Game{&Player{}, &Player{}} : GameState{},
+			&Game{&Player{}, &Player{}}: GameState{},
 		},
 	}
 	err = mockHub3.AddToGameOrNewGame(&Player{mockHub, nil, nil})

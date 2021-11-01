@@ -3,7 +3,7 @@ package hub
 import "fmt"
 
 type GameState struct {
-	Board     [3][3]string
+	Board [3][3]string
 }
 
 // SetSquare takes a pair of integers and the token and modifies the
@@ -38,11 +38,11 @@ func (g *GameState) BoardToOutput() []byte {
 // readable ASCII art
 func (g *GameState) BoardToString() string {
 	var outString string
-	outString += g.Board[0][0]+"|"+g.Board[1][0]+"|"+g.Board[2][0]+"\n"
+	outString += g.Board[0][0] + "|" + g.Board[1][0] + "|" + g.Board[2][0] + "\n"
 	outString += "-----\n"
-	outString += g.Board[0][1]+"|"+g.Board[1][1]+"|"+g.Board[2][1]+"\n"
+	outString += g.Board[0][1] + "|" + g.Board[1][1] + "|" + g.Board[2][1] + "\n"
 	outString += "-----\n"
-	outString += g.Board[0][2]+"|"+g.Board[1][2]+"|"+g.Board[2][2]+"\n"
+	outString += g.Board[0][2] + "|" + g.Board[1][2] + "|" + g.Board[2][2] + "\n"
 	return outString
 }
 

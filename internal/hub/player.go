@@ -7,10 +7,10 @@ import (
 )
 
 type Player struct {
-	Hub          *Hub
-	Game         *Game
-	Conn         *websocket.Conn
-	Stream       chan []byte
+	Hub    *Hub
+	Game   *Game
+	Conn   *websocket.Conn
+	Stream chan []byte
 }
 
 type Turn struct {
@@ -40,7 +40,7 @@ func (c *Player) ReadPump() {
 			break
 		}
 
-		c.Hub.MakeTurn <- Turn{ c, turnCoords }
+		c.Hub.MakeTurn <- Turn{c, turnCoords}
 	}
 }
 

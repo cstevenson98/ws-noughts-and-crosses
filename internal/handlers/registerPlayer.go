@@ -13,8 +13,8 @@ func Registration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Request) {
 	Upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 	conn, err := Upgrader.Upgrade(w, r, nil)
 	if err != nil {
-	log.Println(err)
-	return
+		log.Println(err)
+		return
 	}
 
 	client := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1)}
