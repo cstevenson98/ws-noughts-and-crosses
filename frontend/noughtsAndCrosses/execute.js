@@ -34,6 +34,7 @@ window.addEventListener("DOMContentLoaded", function() {
     let boxes = document.querySelectorAll(".box");
     Array.from(boxes, function(box) {
         box.addEventListener("click", function() {
+            console.log("[" + this.classList[1][1] + ", " + this.classList[1][0] + "]")
             conn.send("[" + this.classList[1][1] + ", " + this.classList[1][0] + "]")
         });
     });

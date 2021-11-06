@@ -21,7 +21,7 @@ func initRouter(centralHub *hub.Hub) {
 
 	mux.HandleFunc("/noughtsAndCrosses/connect",
 		func(w http.ResponseWriter, r *http.Request) {
-			handlers.Registration(centralHub, w, r)
+			handlers.OandXRegistration(centralHub, w, r)
 		})
 
 	fileServer := http.FileServer(http.Dir("./frontend/"))
