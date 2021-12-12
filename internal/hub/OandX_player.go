@@ -31,6 +31,7 @@ func (p *OandXPlayer) ReadPump() {
 			break
 		}
 
+		log.Printf("Incoming message: %q\n", string(message))
 		p.Hub.MakeTurn <- Turn{p, message}
 	}
 }
@@ -71,7 +72,6 @@ func (p *OandXPlayer) ProcessTurn(turn []byte) error {
 		return fmt.Errorf("unable to unmarshal turn []byte(%q)", string(turn))
 	}
 
-
 	var nextBoard = p.Hub.OandXGames[p.Game]
 	playerLabel := p.Game.WhichPlayer(p)
 	var otherPlayer *OandXPlayer
@@ -84,6 +84,8 @@ func (p *OandXPlayer) ProcessTurn(turn []byte) error {
 		otherPlayer = p.Game.Player1
 		p.Game.Status = GamePlayer1
 	} else {
+		nextBoard.Board[turnCoords[0]][turnCoords[1]] = "*"
+		p.Stream <- nextBoard.BoardToOutput()
 		return nil
 	}
 

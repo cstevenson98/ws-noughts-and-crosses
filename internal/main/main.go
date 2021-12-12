@@ -14,7 +14,7 @@ func main() {
 
 	initRouter(centralHub)
 
-	err := http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8765", mux)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
