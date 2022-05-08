@@ -10,9 +10,9 @@ import (
 type OandXPlayer struct {
 	IPlayer
 
-	Hub  *Hub
-	Game *OandXGame
-	Conn *websocket.Conn
+	Hub    *Hub
+	Game   *OandXGame
+	Conn   *websocket.Conn
 	Stream chan []byte
 }
 
@@ -62,7 +62,6 @@ func (p *OandXPlayer) WritePump() {
 	}
 }
 
-
 func (p *OandXPlayer) ProcessTurn(turn []byte) error {
 	var turnCoords [2]int
 	jsonErr := json.Unmarshal(turn, &turnCoords)
@@ -70,7 +69,6 @@ func (p *OandXPlayer) ProcessTurn(turn []byte) error {
 		log.Printf("ERROR: unmarshalling")
 		return fmt.Errorf("unable to unmarshal turn []byte(%q)", string(turn))
 	}
-
 
 	var nextBoard = p.Hub.OandXGames[p.Game]
 	playerLabel := p.Game.WhichPlayer(p)

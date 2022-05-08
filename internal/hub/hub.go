@@ -5,6 +5,11 @@ import (
 	"log"
 )
 
+type User struct {
+	Username       string
+	HashedPassword string
+}
+
 // Hub stores all the ongoing games and deals with registrations and validation
 // of player moves.
 type Hub struct {
@@ -15,6 +20,8 @@ type Hub struct {
 	Register   chan IPlayer
 	Unregister chan IPlayer
 	MakeTurn   chan Turn
+
+	Users []User
 }
 
 // NewHub sets up a Hub and returns the memory location.
