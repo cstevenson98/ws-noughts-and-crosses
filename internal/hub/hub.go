@@ -15,7 +15,7 @@ type User struct {
 type Hub struct {
 	// Games that are registered
 
-	OandXGames map[*OandXGame]*OandXState
+	Games map[*Game]*GameState
 
 	Register   chan IPlayer
 	Unregister chan IPlayer
@@ -27,7 +27,7 @@ type Hub struct {
 // NewHub sets up a Hub and returns the memory location.
 func NewHub() *Hub {
 	return &Hub{
-		OandXGames: make(map[*OandXGame]*OandXState),
+		Games: make(map[*Game]*GameState),
 
 		Register:   make(chan IPlayer),
 		Unregister: make(chan IPlayer),
@@ -40,12 +40,12 @@ func NewHub() *Hub {
 func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 
 	switch p := player.(type) {
-	case *OandXPlayer:
+	case *Player:
 		// Add to the relevant map of games.
-		for game := range h.OandXGames {
+		for game := range h.Games {
 			if game.SlotsFree() > 0 {
-				err := game.AddClient(player.(*OandXPlayer))
-				p.Stream <- h.OandXGames[p.Game].BoardToOutput()
+				err := game.AddClient(player.(*Player))
+				p.Stream <- h.Games[p.Game].GameStateOutput()
 				if err != nil {
 					return fmt.Errorf("err when adding player to hub: %s", err.Error())
 				}
@@ -53,11 +53,10 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 			}
 		}
 
-		newGame := &OandXGame{Player1: player.(*OandXPlayer), Player2: nil, Status: GameWaiting}
-		h.OandXGames[newGame] = &OandXState{}
-		h.OandXGames[newGame].Clear()
-		player.(*OandXPlayer).Game = newGame
-		player.(*OandXPlayer).Stream <- h.OandXGames[player.(*OandXPlayer).Game].BoardToOutput()
+		newGame := &Game{Players: []*Player{player.(*Player)}, Status: GameWaiting}
+		h.Games[newGame] = &GameState{}
+		player.(*Player).Game = newGame
+		player.(*Player).Stream <- h.Games[player.(*Player).Game].GameStateOutput()
 		return nil
 
 	default:
@@ -66,29 +65,43 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 
 }
 
+func remove(s []*Player, i int) []*Player {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
+
+func key(s []*Player, player *Player) (int, error) {
+	for i, plyr := range s {
+		if plyr == player {
+			return i, nil
+		}
+	}
+
+	return -1, fmt.Errorf("player does not exist")
+}
+
 func (h *Hub) UnregisterClient(player IPlayer) error {
 	// Search for this client and remove it.
+
+	var unregErr error
+
 	switch p := player.(type) {
-	case *OandXPlayer:
-		for game := range h.OandXGames {
-			if game.Player1 == p {
-				game.Player1 = nil
-				if game.Player1 == nil && game.Player2 == nil {
-					delete(h.OandXGames, game)
-				}
-				return nil
-			} else if game.Player2 == player {
-				game.Player2 = nil
-				if game.Player1 == nil && game.Player2 == nil {
-					delete(h.OandXGames, game)
-				}
-				return nil
+	case *Player:
+		for game := range h.Games {
+
+			playerKey, keyErr := key(game.Players, p)
+			if keyErr != nil {
+				unregErr = keyErr
+				continue
 			}
+
+			remove(game.Players, playerKey)
+			return nil
 		}
 	default:
 		fmt.Errorf("UnregisterClient type error")
 	}
-	return fmt.Errorf("player was not found registered in hub")
+	return unregErr
 }
 
 func (h *Hub) Run() {
@@ -120,7 +133,7 @@ func (h *Hub) Run() {
 			// Process a player turn
 			if ok {
 				switch p := turn.player.(type) {
-				case *OandXPlayer:
+				case *Player:
 					turnErr := p.ProcessTurn(turn.encodedTurn)
 					if turnErr != nil {
 						log.Printf("was unable to process turn for player %q\n", p)

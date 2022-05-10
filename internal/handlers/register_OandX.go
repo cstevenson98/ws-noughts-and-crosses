@@ -17,7 +17,7 @@ func OandXRegistration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	client := &hub.OandXPlayer{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1)}
+	client := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1)}
 	centralHub.Register <- client
 
 	go client.ReadPump()

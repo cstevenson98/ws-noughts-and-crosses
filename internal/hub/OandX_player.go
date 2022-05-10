@@ -1,22 +1,20 @@
 package hub
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/gorilla/websocket"
 	"log"
 )
 
-type OandXPlayer struct {
+type Player struct {
 	IPlayer
 
 	Hub    *Hub
-	Game   *OandXGame
+	Game   *Game
 	Conn   *websocket.Conn
 	Stream chan []byte
 }
 
-func (p *OandXPlayer) ReadPump() {
+func (p *Player) ReadPump() {
 	defer func() {
 		p.Hub.Unregister <- p
 		p.Conn.Close()
@@ -35,7 +33,7 @@ func (p *OandXPlayer) ReadPump() {
 	}
 }
 
-func (p *OandXPlayer) WritePump() {
+func (p *Player) WritePump() {
 	defer func() {
 		p.Conn.Close()
 	}()
@@ -62,34 +60,7 @@ func (p *OandXPlayer) WritePump() {
 	}
 }
 
-func (p *OandXPlayer) ProcessTurn(turn []byte) error {
-	var turnCoords [2]int
-	jsonErr := json.Unmarshal(turn, &turnCoords)
-	if jsonErr != nil {
-		log.Printf("ERROR: unmarshalling")
-		return fmt.Errorf("unable to unmarshal turn []byte(%q)", string(turn))
-	}
+func (p *Player) ProcessTurn(turn []byte) error {
 
-	var nextBoard = p.Hub.OandXGames[p.Game]
-	playerLabel := p.Game.WhichPlayer(p)
-	var otherPlayer *OandXPlayer
-	if playerLabel == GamePlayer1 && p.Game.Status == GamePlayer1 {
-		nextBoard.Board[turnCoords[0]][turnCoords[1]] = "X"
-		otherPlayer = p.Game.Player2
-		p.Game.Status = GamePlayer2
-	} else if playerLabel == GamePlayer2 && p.Game.Status == GamePlayer2 {
-		nextBoard.Board[turnCoords[0]][turnCoords[1]] = "0"
-		otherPlayer = p.Game.Player1
-		p.Game.Status = GamePlayer1
-	} else {
-		return nil
-	}
-
-	output := nextBoard.BoardToOutput()
-	p.Stream <- output
-	if otherPlayer != nil {
-		otherPlayer.Stream <- output
-	}
-	p.Hub.OandXGames[p.Game] = nextBoard
 	return nil
 }
