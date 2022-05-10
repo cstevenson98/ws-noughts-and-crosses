@@ -44,19 +44,20 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		// Add to the relevant map of games.
 		for game := range h.Games {
 			if game.SlotsFree() > 0 {
-				err := game.AddClient(player.(*Player))
-				p.Stream <- h.Games[p.Game].GameStateOutput()
+				err := game.AddClient(p)
+				//p.Stream <- h.Games[p.Game].GameStateOutput()
 				if err != nil {
 					return fmt.Errorf("err when adding player to hub: %s", err.Error())
 				}
+				player.(*Player).Pos = [2]float64{100., 100.}
 				return nil
 			}
 		}
 
-		newGame := &Game{Players: []*Player{player.(*Player)}, Status: GameWaiting}
+		newGame := &Game{Players: []*Player{p}, Status: GameWaiting, t0: 0.}
 		h.Games[newGame] = &GameState{}
 		player.(*Player).Game = newGame
-		player.(*Player).Stream <- h.Games[player.(*Player).Game].GameStateOutput()
+		//player.(*Player).Stream <- h.Games[player.(*Player).Game].GameStateOutput()
 		return nil
 
 	default:

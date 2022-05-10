@@ -10,7 +10,7 @@ import (
 func main() {
 	centralHub := hub.NewHub()
 	go centralHub.Run()
-	go centralHub.LogOnInterval(time.Second * 30)
+	go centralHub.LogOnInterval(time.Second * 1)
 
 	initRouter(centralHub)
 

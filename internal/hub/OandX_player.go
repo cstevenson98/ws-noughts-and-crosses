@@ -8,6 +8,8 @@ import (
 type Player struct {
 	IPlayer
 
+	Pos [2]float64
+
 	Hub    *Hub
 	Game   *Game
 	Conn   *websocket.Conn

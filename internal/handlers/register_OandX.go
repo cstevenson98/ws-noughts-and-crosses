@@ -6,8 +6,7 @@ import (
 	"ws-noughts-and-crosses/internal/hub"
 )
 
-func OandXRegistration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Request) {
-
+func Registration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Request) {
 	log.Print("Starting client and assigning game")
 
 	Upgrader.CheckOrigin = func(r *http.Request) bool { return true }
@@ -17,9 +16,9 @@ func OandXRegistration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	client := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1)}
-	centralHub.Register <- client
+	player := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1), Pos: [2]float64{50, 50}}
+	centralHub.Register <- player
 
-	go client.ReadPump()
-	go client.WritePump()
+	go player.ReadPump()
+	go player.WritePump()
 }

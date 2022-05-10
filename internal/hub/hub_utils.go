@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -17,7 +18,13 @@ func (h *Hub) PlayerCount() (sum int) {
 }
 
 func (h *Hub) LogOnInterval(interval time.Duration) {
-	//for range time.Tick(interval) {
-	//	log.Printf("There are currently %v active game(s), with %v total player(s)", len(h.Games), h.PlayerCount())
-	//}
+	for range time.Tick(interval) {
+		for game := range h.Games {
+			for _, player := range game.Players {
+				payload, _ := json.Marshal(player.Pos)
+				player.Stream <- payload
+			}
+			game.t0 += interval.Seconds()
+		}
+	}
 }

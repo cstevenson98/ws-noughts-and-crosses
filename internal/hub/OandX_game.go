@@ -6,6 +6,7 @@ type Game struct {
 	IGame
 	Players []*Player
 	Status  string
+	t0      float64
 }
 
 func (g *Game) AddClient(player *Player) error {
