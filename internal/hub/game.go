@@ -2,13 +2,10 @@ package hub
 
 const (
 	GameWaiting = "Waiting"
-	GamePlayer1 = "Player 1's turn!"
-	GamePlayer2 = "Player 2's turn!"
-	GameOver    = "Game Over!"
 )
 
 type Turn struct {
-	player IPlayer
+	player      IPlayer
 	encodedTurn []byte
 }
 

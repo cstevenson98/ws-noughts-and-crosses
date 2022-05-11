@@ -24,7 +24,6 @@ type Hub struct {
 	Users []User
 }
 
-// NewHub sets up a Hub and returns the memory location.
 func NewHub() *Hub {
 	return &Hub{
 		Games: make(map[*Game]*GameState),
@@ -35,8 +34,6 @@ func NewHub() *Hub {
 	}
 }
 
-// AddToGameOrNewGame either adds a client to the first available game or creates a
-// new game and adds them to that.
 func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 
 	switch p := player.(type) {
@@ -54,7 +51,10 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 			}
 		}
 
-		newGame := &Game{Players: []*Player{p}, Status: GameWaiting, t0: 0.}
+		playerMap := make(map[*Player]bool)
+		playerMap[p] = true
+
+		newGame := &Game{Players: playerMap, Status: GameWaiting, t0: 0.}
 		h.Games[newGame] = &GameState{}
 		player.(*Player).Game = newGame
 		//player.(*Player).Stream <- h.Games[player.(*Player).Game].GameStateOutput()
@@ -66,43 +66,18 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 
 }
 
-func remove(s []*Player, i int) []*Player {
-	s[i] = s[len(s)-1]
-	return s[:len(s)-1]
-}
-
-func key(s []*Player, player *Player) (int, error) {
-	for i, plyr := range s {
-		if plyr == player {
-			return i, nil
-		}
-	}
-
-	return -1, fmt.Errorf("player does not exist")
-}
-
 func (h *Hub) UnregisterClient(player IPlayer) error {
-	// Search for this client and remove it.
-
-	var unregErr error
-
 	switch p := player.(type) {
 	case *Player:
 		for game := range h.Games {
-
-			playerKey, keyErr := key(game.Players, p)
-			if keyErr != nil {
-				unregErr = keyErr
-				continue
+			if _, exists := game.Players[p]; exists {
+				delete(game.Players, p)
 			}
-
-			remove(game.Players, playerKey)
-			return nil
 		}
 	default:
 		fmt.Errorf("UnregisterClient type error")
 	}
-	return unregErr
+	return fmt.Errorf("player not found")
 }
 
 func (h *Hub) Run() {
@@ -137,7 +112,7 @@ func (h *Hub) Run() {
 				case *Player:
 					turnErr := p.ProcessTurn(turn.encodedTurn)
 					if turnErr != nil {
-						log.Printf("was unable to process turn for player %q\n", p)
+						log.Printf("was unable to process turn for player %v\n", p)
 					}
 				}
 			} else {
