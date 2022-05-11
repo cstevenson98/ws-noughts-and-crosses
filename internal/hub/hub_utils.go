@@ -2,7 +2,7 @@ package hub
 
 import (
 	"encoding/json"
-	"math/rand"
+	"math"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func (h *Hub) LogOnInterval(interval time.Duration) {
 		for game := range h.Games {
 			for player := range game.Players {
 				randomMessage := CurrentStateMessage{
-					Positions: [][2]float64{{rand.Float64(), rand.Float64()}},
+					Positions: [][2]float64{{0.5 + 0.25*math.Sin(game.t0), 0.5 + 0.25*math.Cos(game.t0)}},
 				}
 				payload, _ := json.Marshal(randomMessage)
 				player.Stream <- payload
