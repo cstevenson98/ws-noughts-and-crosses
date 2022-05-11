@@ -10,12 +10,8 @@ type User struct {
 	HashedPassword string
 }
 
-// Hub stores all the ongoing games and deals with registrations and validation
-// of player moves.
 type Hub struct {
-	// Games that are registered
-
-	Games map[*Game]*GameState
+	Games map[*Game]bool
 
 	Register   chan IPlayer
 	Unregister chan IPlayer
@@ -26,7 +22,7 @@ type Hub struct {
 
 func NewHub() *Hub {
 	return &Hub{
-		Games: make(map[*Game]*GameState),
+		Games: make(map[*Game]bool),
 
 		Register:   make(chan IPlayer),
 		Unregister: make(chan IPlayer),
@@ -42,11 +38,9 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		for game := range h.Games {
 			if game.SlotsFree() > 0 {
 				err := game.AddClient(p)
-				//p.Stream <- h.Games[p.Game].GameStateOutput()
 				if err != nil {
 					return fmt.Errorf("err when adding player to hub: %s", err.Error())
 				}
-				player.(*Player).Pos = [2]float64{100., 100.}
 				return nil
 			}
 		}
@@ -55,9 +49,7 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		playerMap[p] = true
 
 		newGame := &Game{Players: playerMap, Status: GameWaiting, t0: 0.}
-		h.Games[newGame] = &GameState{}
 		player.(*Player).Game = newGame
-		//player.(*Player).Stream <- h.Games[player.(*Player).Game].GameStateOutput()
 		return nil
 
 	default:

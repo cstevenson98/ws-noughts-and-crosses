@@ -9,17 +9,7 @@ import (
 var mux = http.NewServeMux()
 
 func initRouter(centralHub *hub.Hub) {
-	mux.HandleFunc("/",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.Home(w, r)
-		})
-
-	mux.HandleFunc("/noughtsAndCrosses",
-		func(w http.ResponseWriter, r *http.Request) {
-			handlers.NoughtsAndCrosses(w, r)
-		})
-
-	mux.HandleFunc("/noughtsAndCrosses/connect",
+	mux.HandleFunc("/connect",
 		func(w http.ResponseWriter, r *http.Request) {
 			handlers.Registration(centralHub, w, r)
 		})

@@ -15,7 +15,9 @@ func (g *Game) AddClient(player *Player) error {
 	if _, exists := g.Players[player]; exists {
 		return fmt.Errorf("player already exists")
 	}
-	g.Players[player] = true // add player
+
+	// Add player
+	g.Players[player] = true
 
 	player.Game = g
 	return nil
