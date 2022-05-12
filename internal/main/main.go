@@ -3,14 +3,13 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 	"ws-noughts-and-crosses/internal/hub"
 )
 
 func main() {
 	centralHub := hub.NewHub()
 	go centralHub.Run()
-	go centralHub.LogOnInterval(time.Millisecond * 10)
+	//go centralHub.LogOnInterval(time.Second * 10)
 
 	initRouter(centralHub)
 

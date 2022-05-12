@@ -48,8 +48,11 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		playerMap := make(map[*Player]bool)
 		playerMap[p] = true
 
-		newGame := &Game{Players: playerMap, Status: GameWaiting, t0: 0.}
+		newGame := &Game{Players: playerMap, Status: GameWaiting, t0: 0., dt: dtDefault}
 		player.(*Player).Game = newGame
+
+		go newGame.RunGame()
+		
 		return nil
 
 	default:
