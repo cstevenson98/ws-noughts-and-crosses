@@ -8,8 +8,9 @@ import (
 type Player struct {
 	IPlayer
 
-	Pos    [2]float64
-	Vel    [2]float64
+	Pos [2]float64
+	Vel [2]float64
+
 	Hub    *Hub
 	Game   *Game
 	Conn   *websocket.Conn
@@ -23,15 +24,13 @@ func (p *Player) ReadPump() {
 	}()
 
 	for {
-		_, message, err := p.Conn.ReadMessage()
+		_, _, err := p.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
-
-		p.Hub.MakeTurn <- Turn{p, message}
 	}
 }
 

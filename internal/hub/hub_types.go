@@ -1,5 +1,6 @@
 package hub
 
 type CurrentStateMessage struct {
-	Positions [][2]float64 `json:"positions"`
+	MyPosition [2]float64   `json:"my_position"`
+	Positions  [][2]float64 `json:"positions"`
 }

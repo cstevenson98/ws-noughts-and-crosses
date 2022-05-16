@@ -2,7 +2,6 @@ package hub
 
 import (
 	"fmt"
-	"log"
 )
 
 type User struct {
@@ -15,9 +14,8 @@ type Hub struct {
 
 	Register   chan IPlayer
 	Unregister chan IPlayer
-	MakeTurn   chan Turn
 
-	Users []User
+	Users []User // Todo: put in db
 }
 
 func NewHub() *Hub {
@@ -26,12 +24,10 @@ func NewHub() *Hub {
 
 		Register:   make(chan IPlayer),
 		Unregister: make(chan IPlayer),
-		MakeTurn:   make(chan Turn),
 	}
 }
 
 func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
-
 	switch p := player.(type) {
 	case *Player:
 		// Add to the relevant map of games.
@@ -52,13 +48,12 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		player.(*Player).Game = newGame
 
 		go newGame.RunGame()
-		
+
 		return nil
 
 	default:
 		return fmt.Errorf("AddToGameOrNewGame type error")
 	}
-
 }
 
 func (h *Hub) UnregisterClient(player IPlayer) error {
@@ -95,20 +90,6 @@ func (h *Hub) Run() {
 				err := h.UnregisterClient(x)
 				if err != nil {
 					break
-				}
-			} else {
-				return
-			}
-
-		case turn, ok := <-h.MakeTurn:
-			// Process a player turn
-			if ok {
-				switch p := turn.player.(type) {
-				case *Player:
-					turnErr := p.ProcessTurn(turn.encodedTurn)
-					if turnErr != nil {
-						log.Printf("was unable to process turn for player %v\n", p)
-					}
 				}
 			} else {
 				return
