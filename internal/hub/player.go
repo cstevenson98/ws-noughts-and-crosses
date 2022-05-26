@@ -1,6 +1,7 @@
 package hub
 
 import (
+	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
 )
@@ -24,13 +25,20 @@ func (p *Player) ReadPump() {
 	}()
 
 	for {
-		_, _, err := p.Conn.ReadMessage()
+		_, msg, err := p.Conn.ReadMessage()
 		if err != nil {
 			if websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
+
+		var input UserInputEventMessage
+		err = json.Unmarshal(msg, &input)
+		if err != nil {
+			log.Println("could not unmarshal user input")
+		}
+		log.Println("input", input)
 	}
 }
 
