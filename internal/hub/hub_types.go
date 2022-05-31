@@ -7,8 +7,9 @@ type CurrentStateMessage struct {
 
 // UserInputEventMessage tells the direction the player is accelerating
 type UserInputEventMessage struct {
-	W bool `json:"w"`
-	A bool `json:"a"`
-	S bool `json:"s"`
-	D bool `json:"d"`
+	W         bool `json:"w"`
+	A         bool `json:"a"`
+	S         bool `json:"s"`
+	D         bool `json:"d"`
+	Timestamp float64
 }

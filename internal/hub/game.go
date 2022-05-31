@@ -3,6 +3,7 @@ package hub
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"math"
 	"time"
 )
@@ -10,7 +11,10 @@ import (
 const (
 	GameWaiting = "Waiting"
 	MaxPlayers  = 20
-	dtDefault   = time.Millisecond * 100
+	dtDefault   = time.Millisecond * 1000
+
+	DragConstant       = 0.1
+	PlayerAcceleration = 0.001
 )
 
 type Turn struct {
@@ -60,6 +64,9 @@ func (g *Game) RunGame() {
 			}
 			payload, _ := json.Marshal(message)
 			player.Stream <- payload
+
+			log.Println(player)
+			player.InputStack.Reset()
 		}
 		g.t0 += g.dt.Seconds()
 	}

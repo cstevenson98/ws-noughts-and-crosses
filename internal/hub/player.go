@@ -6,8 +6,26 @@ import (
 	"log"
 )
 
+func toForce(inputEventMessage UserInputEventMessage) [2]float64 {
+	var force [2]float64
+	if inputEventMessage.W {
+		force[1] -= 1
+	}
+	if inputEventMessage.A {
+		force[0] -= 1
+	}
+	if inputEventMessage.S {
+		force[1] += 1
+	}
+	if inputEventMessage.D {
+		force[0] += 1
+	}
+	return force
+}
+
 type Player struct {
 	IPlayer
+	InputStack InputStack
 
 	Pos [2]float64
 	Vel [2]float64
@@ -16,6 +34,19 @@ type Player struct {
 	Game   *Game
 	Conn   *websocket.Conn
 	Stream chan []byte
+}
+
+func (p *Player) Evolve() {
+	//x0 := p.Pos
+	//v0 := p.Vel
+	//
+	//for i, input := range p.InputStack.Inputs {
+	//	ti := input.Timestamp
+	//	tf :=
+	//
+	//	p.Vel[0] = v0[0]*math.Exp(-DragConstant*input.Timestamp) + toForce(input)[0]*PlayerAcceleration*(1-math.Exp(-DragConstant*input.Timestamp))
+	//}
+	//
 }
 
 func (p *Player) ReadPump() {
@@ -38,7 +69,8 @@ func (p *Player) ReadPump() {
 		if err != nil {
 			log.Println("could not unmarshal user input")
 		}
-		log.Println("input", input)
+
+		p.InputStack.Push(input)
 	}
 }
 
