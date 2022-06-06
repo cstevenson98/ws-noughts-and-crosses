@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
+	"time"
 )
 
 func toForce(inputEventMessage UserInputEventMessage) [2]float64 {
@@ -36,17 +37,32 @@ type Player struct {
 	Stream chan []byte
 }
 
-func (p *Player) Evolve() {
-	//x0 := p.Pos
-	//v0 := p.Vel
-	//
-	//for i, input := range p.InputStack.Inputs {
-	//	ti := input.Timestamp
-	//	tf :=
-	//
-	//	p.Vel[0] = v0[0]*math.Exp(-DragConstant*input.Timestamp) + toForce(input)[0]*PlayerAcceleration*(1-math.Exp(-DragConstant*input.Timestamp))
-	//}
-	//
+func (p *Player) Update(force [2]float64, dt float64) {
+	p.Pos[0] += p.Vel[0] * dt
+	p.Pos[1] += p.Vel[1] * dt
+	p.Vel[0] += force[0] * PlayerAcceleration * dt
+	p.Vel[1] += force[1] * PlayerAcceleration * dt
+}
+
+func (p *Player) Evolve(tf float64) {
+	t := p.Game.t0
+
+	for _, input := range p.InputStack.Inputs {
+		dt := input.Timestamp - t
+		if dt < 0 {
+			// Disregard inputs that are in the past
+			continue
+		}
+
+		// Split dt into sub-dt increments
+		subTime := t
+		for subTime+float64(subDt) < input.Timestamp {
+			subTime += subDt
+			p.Update(toForce(input), subDt/float64(time.Millisecond*1000))
+		}
+
+	}
+
 }
 
 func (p *Player) ReadPump() {

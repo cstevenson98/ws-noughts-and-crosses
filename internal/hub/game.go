@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	GameWaiting = "Waiting"
-	MaxPlayers  = 20
-	dtDefault   = time.Millisecond * 1000
-
+	GameWaiting        = "Waiting"
+	MaxPlayers         = 20
+	dtDefault          = time.Millisecond * 1000
+	subDt              = time.Millisecond * 100
 	DragConstant       = 0.1
 	PlayerAcceleration = 0.001
 )

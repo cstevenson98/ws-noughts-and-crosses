@@ -2,6 +2,7 @@ package hub
 
 import (
 	"fmt"
+	"time"
 )
 
 type User struct {
@@ -44,7 +45,12 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 		playerMap := make(map[*Player]bool)
 		playerMap[p] = true
 
-		newGame := &Game{Players: playerMap, Status: GameWaiting, t0: 0., dt: dtDefault}
+		newGame := &Game{
+			Players: playerMap,
+			Status:  GameWaiting,
+			t0:      float64(time.Now().UnixMilli()),
+			dt:      dtDefault,
+		}
 		player.(*Player).Game = newGame
 
 		go newGame.RunGame()
