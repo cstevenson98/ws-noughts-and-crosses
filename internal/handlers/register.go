@@ -16,7 +16,7 @@ func Registration(centralHub *hub.Hub, w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	player := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1), Pos: [2]float64{50, 50}}
+	player := &hub.Player{Hub: centralHub, Conn: conn, Stream: make(chan []byte, 1), Pos: [2]float64{0.5, 0.5}}
 	centralHub.Register <- player
 
 	go player.ReadPump()

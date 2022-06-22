@@ -52,6 +52,7 @@ func (h *Hub) AddToGameOrNewGame(player IPlayer) error {
 			dt:      dtDefault,
 		}
 		player.(*Player).Game = newGame
+		h.Games[newGame] = true
 
 		go newGame.RunGame()
 

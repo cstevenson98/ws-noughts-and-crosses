@@ -1,8 +1,10 @@
 package hub
 
+import "ws-noughts-and-crosses/pkg/vec"
+
 type CurrentStateMessage struct {
-	MyPosition [2]float64   `json:"my_position"`
-	Positions  [][2]float64 `json:"positions"`
+	MyPosition [2]float64 `json:"my_position"`
+	Positions  []vec.Vec  `json:"positions"`
 }
 
 // UserInputEventMessage tells the direction the player is accelerating

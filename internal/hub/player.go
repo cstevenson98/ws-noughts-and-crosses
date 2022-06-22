@@ -4,65 +4,22 @@ import (
 	"encoding/json"
 	"github.com/gorilla/websocket"
 	"log"
-	"time"
+	"ws-noughts-and-crosses/pkg/vec"
 )
 
-func toForce(inputEventMessage UserInputEventMessage) [2]float64 {
-	var force [2]float64
-	if inputEventMessage.W {
-		force[1] -= 1
-	}
-	if inputEventMessage.A {
-		force[0] -= 1
-	}
-	if inputEventMessage.S {
-		force[1] += 1
-	}
-	if inputEventMessage.D {
-		force[0] += 1
-	}
-	return force
-}
-
+// Player Stores information about and facilitates communication
+// with client players over websocket.
 type Player struct {
 	IPlayer
 	InputStack InputStack
 
-	Pos [2]float64
-	Vel [2]float64
+	Pos vec.Vec
+	Vel vec.Vec
 
 	Hub    *Hub
 	Game   *Game
 	Conn   *websocket.Conn
 	Stream chan []byte
-}
-
-func (p *Player) Update(force [2]float64, dt float64) {
-	p.Pos[0] += p.Vel[0] * dt
-	p.Pos[1] += p.Vel[1] * dt
-	p.Vel[0] += force[0] * PlayerAcceleration * dt
-	p.Vel[1] += force[1] * PlayerAcceleration * dt
-}
-
-func (p *Player) Evolve(tf float64) {
-	t := p.Game.t0
-
-	for _, input := range p.InputStack.Inputs {
-		dt := input.Timestamp - t
-		if dt < 0 {
-			// Disregard inputs that are in the past
-			continue
-		}
-
-		// Split dt into sub-dt increments
-		subTime := t
-		for subTime+float64(subDt) < input.Timestamp {
-			subTime += subDt
-			p.Update(toForce(input), subDt/float64(time.Millisecond*1000))
-		}
-
-	}
-
 }
 
 func (p *Player) ReadPump() {
@@ -115,9 +72,4 @@ func (p *Player) WritePump() {
 			}
 		}
 	}
-}
-
-func (p *Player) ProcessTurn(turn []byte) error {
-
-	return nil
 }

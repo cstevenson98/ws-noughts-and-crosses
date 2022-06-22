@@ -3,18 +3,15 @@ package hub
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"math"
 	"time"
+	"ws-noughts-and-crosses/pkg/vec"
 )
 
 const (
-	GameWaiting        = "Waiting"
-	MaxPlayers         = 20
-	dtDefault          = time.Millisecond * 1000
-	subDt              = time.Millisecond * 100
-	DragConstant       = 0.1
-	PlayerAcceleration = 0.001
+	GameWaiting = "Waiting"
+	MaxPlayers  = 20
+	dtDefault   = time.Millisecond * 100
+	PlayerSpeed = 0.0003 // px/ms
 )
 
 type Turn struct {
@@ -58,15 +55,22 @@ func (g *Game) SlotsFree() int {
 func (g *Game) RunGame() {
 	for range time.Tick(g.dt) {
 		for player := range g.Players {
+			now := float64(time.Now().UnixMilli())
+			player.Evolve(now)
+
+			otherPositions := make([]vec.Vec, 0)
+			for otherPlayer := range g.Players {
+				if otherPlayer != player {
+					otherPositions = append(otherPositions, otherPlayer.Pos)
+				}
+			}
+
 			message := CurrentStateMessage{
-				MyPosition: [2]float64{0.5 + 0.25*math.Sin(g.t0), 0.5 + 0.25*math.Cos(g.t0)},
-				Positions:  [][2]float64{},
+				MyPosition: player.Pos,
+				Positions:  otherPositions,
 			}
 			payload, _ := json.Marshal(message)
 			player.Stream <- payload
-
-			log.Println(player)
-			player.InputStack.Reset()
 		}
 		g.t0 += g.dt.Seconds()
 	}

@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+// InputStack is a stack of user input events, received since
+// the last global tick
 type InputStack struct {
 	Lock sync.Mutex
 
