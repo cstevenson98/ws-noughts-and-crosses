@@ -4,14 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-	"ws-noughts-and-crosses/pkg/vec"
 )
 
 const (
 	GameWaiting = "Waiting"
 	MaxPlayers  = 20
-	dtDefault   = time.Millisecond * 100
-	PlayerSpeed = 0.0003 // px/ms
+	dtDefault   = time.Millisecond * 50
+	PlayerSpeed = 0.003 // px/ms
 )
 
 type Turn struct {
@@ -55,19 +54,20 @@ func (g *Game) SlotsFree() int {
 func (g *Game) RunGame() {
 	for range time.Tick(g.dt) {
 		for player := range g.Players {
-			now := float64(time.Now().UnixMilli())
-			player.Evolve(now)
-
-			otherPositions := make([]vec.Vec, 0)
+			var actions []PlayerActionMessage
 			for otherPlayer := range g.Players {
 				if otherPlayer != player {
-					otherPositions = append(otherPositions, otherPlayer.Pos)
+					actions = append(actions, PlayerActionMessage{
+						ID:        otherPlayer.ID,
+						Direction: otherPlayer.Direction,
+						Pos:       otherPlayer.Pos,
+						Vel:       otherPlayer.Vel,
+					})
 				}
 			}
 
 			message := CurrentStateMessage{
-				MyPosition: player.Pos,
-				Positions:  otherPositions,
+				Update: actions,
 			}
 			payload, _ := json.Marshal(message)
 			player.Stream <- payload

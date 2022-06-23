@@ -11,10 +11,11 @@ import (
 // with client players over websocket.
 type Player struct {
 	IPlayer
-	InputStack InputStack
 
-	Pos vec.Vec
-	Vel vec.Vec
+	ID        string
+	Direction Direction
+	Pos       vec.Vec
+	Vel       vec.Vec
 
 	Hub    *Hub
 	Game   *Game
@@ -37,13 +38,15 @@ func (p *Player) ReadPump() {
 			break
 		}
 
-		var input UserInputEventMessage
+		var input PlayerActionMessage
 		err = json.Unmarshal(msg, &input)
 		if err != nil {
 			log.Println("could not unmarshal user input")
 		}
 
-		p.InputStack.Push(input)
+		p.Direction = input.Direction
+		p.Pos = input.Pos
+		p.Vel = input.Vel
 	}
 }
 
